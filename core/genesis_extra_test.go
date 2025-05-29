@@ -1,4 +1,5 @@
-// (c) 2019-2021, Ava Labs, Inc.
+// Copyright (C) 2019-2025, Ava Labs, Inc. All rights reserved.
+// See the file LICENSE for licensing terms.
 //
 // This file is a derived work, based on the go-ethereum library whose original
 // notices appear below.
@@ -31,6 +32,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ava-labs/coreth/core/state"
 	"github.com/ava-labs/coreth/params"
 	"github.com/ava-labs/coreth/params/extras"
 	"github.com/ava-labs/coreth/utils"
@@ -71,10 +73,10 @@ func TestGenesisEthUpgrades(t *testing.T) {
 		},
 	)
 
-	tdb := triedb.NewDatabase(db, triedb.HashDefaults)
+	coredb := state.NewDatabaseWithConfig(db, triedb.HashDefaults)
 	config := *preEthUpgrades
 	// Set this up once, just to get the genesis hash
-	_, genHash, err := SetupGenesisBlock(db, tdb, &Genesis{Config: &config}, common.Hash{}, false)
+	_, genHash, err := SetupGenesisBlock(db, coredb, &Genesis{Config: &config}, common.Hash{}, false)
 	require.NoError(t, err)
 
 	// Write the configuration back to the db as it would be in prior versions
@@ -94,7 +96,7 @@ func TestGenesisEthUpgrades(t *testing.T) {
 
 	// We should still be able to re-initialize
 	config = *preEthUpgrades
-	params.SetEthUpgrades(&config) // New versions will set additional fields eg, LondonBlock
-	_, _, err = SetupGenesisBlock(db, tdb, &Genesis{Config: &config}, block.Hash(), false)
+	require.NoError(t, params.SetEthUpgrades(&config)) // New versions will set additional fields eg, LondonBlock
+	_, _, err = SetupGenesisBlock(db, coredb, &Genesis{Config: &config}, block.Hash(), false)
 	require.NoError(t, err)
 }

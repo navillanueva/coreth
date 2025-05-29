@@ -1,4 +1,5 @@
-// (c) 2019-2025, Ava Labs, Inc.
+// Copyright (C) 2019-2025, Ava Labs, Inc. All rights reserved.
+// See the file LICENSE for licensing terms.
 //
 // This file is a derived work, based on the go-ethereum library whose original
 // notices appear below.
@@ -54,7 +55,33 @@ func NewDatabase(db ethdb.Database) ethstate.Database {
 }
 
 func NewDatabaseWithConfig(db ethdb.Database, config *triedb.Config) ethstate.Database {
-	return ethstate.NewDatabaseWithConfig(db, config)
+	if config == nil {
+		return NewDatabase(db)
+	}
+
+	if config.DBOverride == nil {
+		return ethstate.NewDatabaseWithConfig(db, config)
+	}
+
+	innerdb, ok := config.DBOverride(db).(*firewood.Database)
+	if !ok {
+		// Not firewood, but we can still initialize the database
+		// We assume low overhead for extra database initialization
+		if innerdb != nil {
+			innerdb.Close()
+		}
+		return ethstate.NewDatabaseWithConfig(db, config)
+	}
+	if innerdb == nil {
+		fmt.Printf("firewood is nil")
+		log.Error("firewooddb.Database is nil")
+		return nil
+	}
+
+	return &firewoodAccessorDb{
+		Database: ethstate.NewDatabaseWithConfig(db, config),
+		fw:       innerdb,
+	}
 }
 
 func NewDatabaseWithNodeDB(db ethdb.Database, triedb *triedb.Database) ethstate.Database {

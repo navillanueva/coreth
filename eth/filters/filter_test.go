@@ -1,4 +1,5 @@
-// (c) 2019-2022, Ava Labs, Inc.
+// Copyright (C) 2019-2025, Ava Labs, Inc. All rights reserved.
+// See the file LICENSE for licensing terms.
 //
 // This file is a derived work, based on the go-ethereum library whose original
 // notices appear below.
@@ -37,6 +38,7 @@ import (
 	"github.com/ava-labs/coreth/accounts/abi"
 	"github.com/ava-labs/coreth/consensus/dummy"
 	"github.com/ava-labs/coreth/core"
+	"github.com/ava-labs/coreth/core/state"
 	"github.com/ava-labs/coreth/params"
 	"github.com/ava-labs/coreth/plugin/evm/customrawdb"
 	"github.com/ava-labs/coreth/rpc"
@@ -99,7 +101,7 @@ func BenchmarkFilters(b *testing.B) {
 	// The test txs are not properly signed, can't simply create a chain
 	// and then import blocks. TODO(rjl493456442) try to get rid of the
 	// manual database writes.
-	gspec.MustCommit(db, triedb.NewDatabase(db, triedb.HashDefaults))
+	gspec.MustCommit(state.NewDatabaseWithConfig(db, triedb.HashDefaults))
 
 	for i, block := range chain {
 		rawdb.WriteBlock(db, block)
@@ -193,7 +195,7 @@ func TestFilters(t *testing.T) {
 
 	// Hack: GenerateChainWithGenesis creates a new db.
 	// Commit the genesis manually and use GenerateChain.
-	_, err = gspec.Commit(db, triedb.NewDatabase(db, nil))
+	_, err = gspec.Commit(state.NewDatabase(db))
 	if err != nil {
 		t.Fatal(err)
 	}
