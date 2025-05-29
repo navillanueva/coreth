@@ -131,5 +131,6 @@ func (db *firewoodAccessorDb) OpenStorageTrie(stateRoot common.Hash, address com
 
 // CopyTrie returns an independent copy of the given trie.
 func (db *firewoodAccessorDb) CopyTrie(trie Trie) Trie {
+	panic("CopyTrie not implemented for firewoodAccessorDb")
 	return nil
 }

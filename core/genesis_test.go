@@ -146,8 +146,11 @@ func testSetupGenesis(t *testing.T, scheme string) {
 				if err != nil {
 					t.Fatal(err)
 				}
-
-				bc, _ := NewBlockChain(db, DefaultCacheConfigWithScheme(scheme), &oldcustomg, dummy.NewFullFaker(), vm.Config{}, genesis.Hash(), false)
+				cacheConfig := DefaultCacheConfigWithScheme(scheme)
+				if scheme == customrawdb.FirewoodScheme {
+					cacheConfig.SnapshotLimit = 0 // Disable snapshots for firewood - no iterators
+				}
+				bc, _ := NewBlockChain(db, cacheConfig, &oldcustomg, dummy.NewFullFaker(), vm.Config{}, genesis.Hash(), false)
 				defer bc.Stop()
 
 				_, blocks, _, err := GenerateChainWithGenesis(&oldcustomg, dummy.NewFullFaker(), 4, 25, nil)

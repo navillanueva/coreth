@@ -19,10 +19,7 @@ import (
 	"github.com/ava-labs/libevm/triedb/database"
 )
 
-var (
-	errNodeNotFound = errors.New("node not found")
-	errNoReader     = errors.New("reader unavailable")
-)
+var errNoReader = errors.New("reader unavailable")
 
 // AccountTrie implements state.Trie for managing account states.
 // There are several caveats to the current implementation:
@@ -70,9 +67,8 @@ func (a *AccountTrie) GetAccount(addr common.Address) (*types.StateAccount, erro
 	if err != nil {
 		return nil, err
 	}
-
 	if acctBytes == nil {
-		return nil, errNodeNotFound
+		return nil, nil // Account not found
 	}
 
 	// Decode the account node
@@ -98,7 +94,7 @@ func (a *AccountTrie) GetStorage(addr common.Address, key []byte) ([]byte, error
 		return nil, err
 	}
 	if storageBytes == nil {
-		return nil, errNodeNotFound
+		return nil, nil // No storage found for this key
 	}
 
 	return storageBytes, nil
