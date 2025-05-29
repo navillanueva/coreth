@@ -377,13 +377,7 @@ func NewBlockChain(
 		return nil, errCacheConfigNotSpecified
 	}
 	// Open trie database with provided config
-	var stateCache state.Database
-	triedbConfig := cacheConfig.triedbConfig()
-	if cacheConfig.StateScheme == customrawdb.FirewoodScheme {
-		stateCache = state.NewDatabaseWithFirewood(db, triedbConfig)
-	} else {
-		stateCache = state.NewDatabaseWithConfig(db, triedbConfig)
-	}
+	stateCache := state.NewDatabaseWithConfig(db, cacheConfig.triedbConfig())
 
 	// Setup the genesis block, commit the provided genesis specification
 	// to database if the genesis block is not present yet, or load the

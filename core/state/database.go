@@ -55,11 +55,7 @@ func NewDatabase(db ethdb.Database) ethstate.Database {
 }
 
 func NewDatabaseWithConfig(db ethdb.Database, config *triedb.Config) ethstate.Database {
-	if config == nil {
-		return NewDatabase(db)
-	}
-
-	if config.DBOverride == nil {
+	if config == nil || config.DBOverride == nil {
 		return ethstate.NewDatabaseWithConfig(db, config)
 	}
 
@@ -73,7 +69,6 @@ func NewDatabaseWithConfig(db ethdb.Database, config *triedb.Config) ethstate.Da
 		return ethstate.NewDatabaseWithConfig(db, config)
 	}
 	if innerdb == nil {
-		fmt.Printf("firewood is nil")
 		log.Error("firewooddb.Database is nil")
 		return nil
 	}
@@ -86,28 +81,6 @@ func NewDatabaseWithConfig(db ethdb.Database, config *triedb.Config) ethstate.Da
 
 func NewDatabaseWithNodeDB(db ethdb.Database, triedb *triedb.Database) ethstate.Database {
 	return ethstate.NewDatabaseWithNodeDB(db, triedb)
-}
-
-// Note trieConfig provides a closure here.
-func NewDatabaseWithFirewood(db ethdb.Database, trieConfig *triedb.Config) Database {
-	// I could create my own Config, create the config, and create the triedb.Config
-	// Don't accept the triedb and create it here
-	fw, ok := trieConfig.DBOverride(db).(*firewood.Database)
-	if !ok {
-		log.Error("Cannot create firewooddb.Database from the provided database")
-		fmt.Printf("not ok")
-		return nil
-	}
-	if fw == nil {
-		fmt.Printf("firewood is nil")
-		log.Error("firewooddb.Database is nil")
-		return nil
-	}
-
-	return &firewoodAccessorDb{
-		Database: ethstate.NewDatabaseWithConfig(db, trieConfig),
-		fw:       fw,
-	}
 }
 
 type firewoodAccessorDb struct {
@@ -132,5 +105,4 @@ func (db *firewoodAccessorDb) OpenStorageTrie(stateRoot common.Hash, address com
 // CopyTrie returns an independent copy of the given trie.
 func (db *firewoodAccessorDb) CopyTrie(trie Trie) Trie {
 	panic("CopyTrie not implemented for firewoodAccessorDb")
-	return nil
 }

@@ -230,6 +230,7 @@ func (g *Genesis) trieConfig() *triedb.Config {
 
 // TODO: migrate this function to "flush" for more similarity with upstream.
 func (g *Genesis) toBlock(coredb state.Database) *types.Block {
+	fmt.Println("ToBlock", len(g.Alloc))
 	statedb, err := state.New(types.EmptyRootHash, coredb, nil)
 	if err != nil {
 		panic(err)
